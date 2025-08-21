@@ -1,4 +1,4 @@
-module github.com/url-short-sso/lib/protos
+module github.com/protos
 
 go 1.24.3
 
