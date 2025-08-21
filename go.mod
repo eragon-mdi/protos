@@ -1,4 +1,4 @@
-module github.com/protos
+module github.com/eragon-mdi/protos
 
 go 1.24.3
 
