@@ -1,0 +1,19 @@
+@startuml auth_logout_seq
+actor Client
+participant AuthService as Auth
+database TokenStore as DB
+
+Client -> Auth : Logout(refresh_token, ctx{app_id, device_id})
+Auth -> Auth : verify signature & exp
+Auth -> Auth : compare claims with ctx
+alt invalid / mismatch
+  Auth -> Client : error  <<gRPC Status: Unauthenticated>>
+else valid
+  Auth -> DB : revoke token by hash
+  alt revoked
+    Auth -> Client : OK  <<gRPC Status: OK>>
+  else not found / already revoked
+    Auth -> Client : OK (idempotent)  <<gRPC Status: OK>>
+  end
+end
+@enduml

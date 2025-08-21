@@ -1,0 +1,22 @@
+@startuml auth_login_seq
+actor Client
+participant AuthService as Auth
+database "UserStore" as Users
+database "TokenStore" as DB
+
+Client -> Auth : Login(email, password, app_id)
+Auth -> Auth : validate input (format, required fields)
+Auth -> Users : get hashed password by email
+alt user found
+    Auth -> Auth : compare input password with hashed password
+    alt password correct
+        Auth -> Auth : create pair access and refresh tokens (JWT)
+        Auth -> DB : store hash(refresh) + meta(user_id, device_id, app_id, exp)
+        Auth -> Client : OK { access, refresh }  <<gRPC Status: OK>>
+    else password incorrect
+        Auth -> Client : error  <<gRPC Status: Unauthenticated>>
+    end
+else user not found
+    Auth -> Client : error  <<gRPC Status: NotFound>>
+end
+@enduml

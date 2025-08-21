@@ -1,0 +1,19 @@
+@startuml auth_register_seq
+actor Client
+participant "AuthService" as Auth
+database "UserStore" as DB
+
+Client -> Auth : Register(email, password)
+Auth -> Auth : validate input
+alt email not exists
+    Auth -> Auth : create user object (hash password, generate user_id)
+    Auth -> DB : save user record
+    alt save ok
+        Auth -> Client : {user_id}  <<gRPC Status: OK>>
+    else internal error
+        Auth -> Client : error  <<gRPC Status: Internal>>
+    end
+else email exists
+    Auth -> Client : error  <<gRPC Status: AlreadyExists>>
+end
+@enduml

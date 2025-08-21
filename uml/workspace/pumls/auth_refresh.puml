@@ -1,0 +1,18 @@
+@startuml auth_refresh_seq
+actor Client
+participant AuthService as Auth
+database TokenStore as DB
+
+Client -> Auth : Refresh(refresh_token, ctx{app_id, device_id})
+Auth -> Auth : verify signature & exp
+Auth -> DB : find token hash by refresh + ctx
+alt token invalid/expired/revoked
+  Auth -> Client : error  <<gRPC Status: Unauthenticated>>
+else valid
+  Auth -> DB : mark old refresh as revoked
+  Auth -> Auth : create new refresh token
+  Auth -> DB : store hash(new_refresh) + meta(user_id, app_id, device_id, exp)
+  Auth -> Auth : create new access token
+  Auth -> Client : OK { access, refresh }  <<gRPC Status: OK>>
+end
+@enduml

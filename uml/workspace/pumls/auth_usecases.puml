@@ -1,0 +1,14 @@
+@startuml auth_usecases
+left to right direction
+actor Client
+rectangle "Auth Service" {
+  usecase "Register\n(email + password)\n→ { user_id }" as UC_Register
+  usecase "Login\n(email + password)\n→ { access, refresh }" as UC_Login
+  usecase "Refresh\n(refresh)\n→ { access, refresh }" as UC_Refresh
+  usecase "Logout\n(revoke refresh)\n→ {} (OK)" as UC_Logout
+}
+Client --> UC_Register
+Client --> UC_Login
+Client --> UC_Refresh
+Client --> UC_Logout
+@enduml

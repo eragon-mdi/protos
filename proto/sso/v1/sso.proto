@@ -1,0 +1,73 @@
+syntax =  "proto3";
+
+package sso;
+
+option go_package = "github.com/eragon-mdi/url-short-sso/lib/protos/gen/go/sso/v1;sso";
+
+import "google/protobuf/empty.proto";
+
+// email, RFC5321; password 6-12 chars
+message User {
+    string email = 1;
+    string password = 2;
+}
+
+message TokenPair {
+    string access = 1;
+    string refresh = 2;
+}
+
+message DeviceContext {
+    int32 app_id = 1; // ID of the app to login to
+    int32 device_id = 2;
+}
+
+service Auth {
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Logout (LogoutRequest) returns (google.protobuf.Empty);
+    rpc Refresh (RefreshRequest) returns (RefreshResponse);
+}
+
+message RegisterRequest {
+    User user = 1;
+}
+
+message RegisterResponse {
+    string user_id = 1; // UUID
+}
+
+message LoginRequest {
+    User user = 1;
+    DeviceContext ctx = 2;
+}
+
+message LoginResponse {
+    TokenPair tokens = 1;
+}
+
+message LogoutRequest {
+    string refresh = 1;
+    DeviceContext ctx = 2;
+}
+
+message RefreshRequest {
+    string refresh = 1;
+    DeviceContext ctx = 2;
+}
+
+message RefreshResponse {
+    TokenPair tokens = 1;
+}
+
+service Permission {
+    rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse);
+}
+
+message IsAdminRequest {
+    string user_id = 1;
+}
+
+message IsAdminResponse {
+    bool is_admin = 1;
+}
